@@ -40,4 +40,6 @@ public interface SequenceMapper {
     @UpdateProvider(type = UpdateProvider.class,method = "updateOffset")
     int updateOffset(@Param("name") String name, @Param("nextOffset") long nextOffset, @Param("currentOffset") long currentOffset);
 
+
+
 }

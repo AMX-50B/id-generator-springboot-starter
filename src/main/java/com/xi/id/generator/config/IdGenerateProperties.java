@@ -18,4 +18,9 @@ public class IdGenerateProperties {
     private String tableName;
 
     private String defaultSequence;
+
+    public IdGenerateProperties(){
+        this.tableName = "t_sequence";
+        this.defaultSequence = "default";
+    }
 }

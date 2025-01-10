@@ -1,9 +1,9 @@
 package com.xi.id.generator.config;
 
-import com.xi.id.generator.annotation.EnableXiIdGenerator;
 import com.xi.id.generator.mapper.SequenceMapper;
 import com.xi.id.generator.service.IdGenerator;
 import com.xi.id.generator.service.impl.IdGeneratorImpl;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.SqlSessionTemplate;
@@ -14,13 +14,10 @@ import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
 import javax.sql.DataSource;
@@ -34,8 +31,9 @@ import javax.sql.DataSource;
 @ConditionalOnClass({SqlSessionFactory.class, SqlSessionFactoryBean.class })
 @ConditionalOnBean(DataSource.class)
 @EnableConfigurationProperties(IdGenerateProperties.class)
-@AutoConfigureAfter(MybatisAutoConfiguration.class)
+@AutoConfigureAfter({MybatisAutoConfiguration.class})
 @MapperScan("com.xi.id.generator.mapper")
+@Slf4j
 public class IdGeneratorAutoConfiguration {
     private final DataSource dataSource;
     private final IdGenerateProperties idGenerateProperties;
@@ -50,9 +48,7 @@ public class IdGeneratorAutoConfiguration {
     public SqlSessionFactory idGenerateSqlSessionFactory() throws Exception {
         SqlSessionFactoryBean factory = new SqlSessionFactoryBean();
         factory.setDataSource(dataSource);
-        ResourcePatternResolver resourceResolver = new PathMatchingResourcePatternResolver();
-        Resource[] mappers = resourceResolver.getResources("classpath*:mapper/id/generator/SequenceMapper.xml");
-        factory.setMapperLocations(mappers);
+        factory.setMapperLocations(new PathMatchingResourcePatternResolver().getResources("classpath*:mapper/id/generator/SequenceMapper.xml"));
         return factory.getObject();
     }
 
