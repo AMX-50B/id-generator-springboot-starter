@@ -5,8 +5,11 @@ import com.xi.id.generator.mapper.SequenceMapper;
 import com.xi.id.generator.mapper.entity.SequenceEntity;
 import com.xi.id.generator.model.Sequence;
 import com.xi.id.generator.service.IdGenerator;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.PostConstruct;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -103,10 +106,48 @@ public class IdGeneratorImpl implements IdGenerator {
 
     @PostConstruct
     public void init() {
+        // 初始化表
+        initTable();
         List<SequenceEntity> sequences = this.sequenceMapper.listSequence();
+        if (CollectionUtils.isEmpty(sequences)) {
+            SequenceEntity entity = initDefaultSequence();
+            sequences = new ArrayList<>(1);
+            sequences.add(entity);
+        }
         for (SequenceEntity sequence : sequences) {
             this.refreshOffset(sequence.getName());
         }
+    }
+
+    /**
+     *初始化表
+     */
+    private void initTable() {
+        if (idGenerateProperties.getAutoCreateTable()) {
+            Map<String, String> m = this.sequenceMapper.checkTable();
+            if(CollectionUtils.isEmpty(m)) {
+                return;
+            }
+            this.sequenceMapper.createSequenceTable();
+        }
+    }
+
+    /**
+     * 初始化默认序列
+     * @return
+     */
+    private SequenceEntity initDefaultSequence(){
+        SequenceEntity sequence = SequenceEntity.builder()
+                .name(idGenerateProperties.getDefaultSequence())
+                .step(1L)
+                .currentOffset(idGenerateProperties.getDefaultSequenceOffset())
+                .startOffset(idGenerateProperties.getDefaultSequenceOffset())
+                .owner("system")
+                .createTime(LocalDateTime.now())
+                .updateTime(LocalDateTime.now())
+                .build();
+        this.sequenceMapper.insertSequence(sequence);
+        return sequence;
     }
 
 }

@@ -1,1 +1,0 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.lbx.trade.common.generate.config.IdGenerateAutoConfiguration

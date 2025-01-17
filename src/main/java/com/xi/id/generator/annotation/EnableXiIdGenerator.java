@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Import;
 import java.lang.annotation.*;
 
 /**
+ * 开启id生成器
  * @author LiuY
  * @date 2024/12/27
  **/
