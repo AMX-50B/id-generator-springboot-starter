@@ -5,6 +5,7 @@ import com.xi.id.generator.mapper.SequenceMapper;
 import com.xi.id.generator.mapper.entity.SequenceEntity;
 import com.xi.id.generator.model.Sequence;
 import com.xi.id.generator.service.IdGenerator;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.PostConstruct;
@@ -21,6 +22,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * id业务接口 实现类
  * @author LiuY
  */
+@Slf4j
 public class IdGeneratorImpl implements IdGenerator {
 
     private final SequenceMapper sequenceMapper;
@@ -125,10 +127,11 @@ public class IdGeneratorImpl implements IdGenerator {
     private void initTable() {
         if (idGenerateProperties.getAutoCreateTable()) {
             Map<String, String> m = this.sequenceMapper.checkTable();
-            if(CollectionUtils.isEmpty(m)) {
+            if(!CollectionUtils.isEmpty(m)) {
                 return;
             }
             this.sequenceMapper.createSequenceTable();
+            log.info("create sequence table:{} success",idGenerateProperties.getTableName());
         }
     }
 
@@ -147,6 +150,7 @@ public class IdGeneratorImpl implements IdGenerator {
                 .updateTime(LocalDateTime.now())
                 .build();
         this.sequenceMapper.insertSequence(sequence);
+        log.info("create default sequence :{},offset:{} success",idGenerateProperties.getDefaultSequence(),idGenerateProperties.getDefaultSequenceOffset());
         return sequence;
     }
 
